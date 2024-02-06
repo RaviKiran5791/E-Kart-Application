@@ -1,8 +1,10 @@
 package com.shopping.ekart.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 @Entity
-public class Seller extends User{
+@Table(name = "sellers")
+public class Seller extends User {
 
 }

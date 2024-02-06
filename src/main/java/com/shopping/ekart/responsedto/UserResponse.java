@@ -1,5 +1,7 @@
 package com.shopping.ekart.responsedto;
 
+import com.shopping.ekart.enums.USERROLE;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,4 +16,5 @@ public class UserResponse {
 	private int userId;
 	private String userName;
 	private String email;
+	private USERROLE userRole;
 }
