@@ -17,4 +17,7 @@ public class UserResponse {
 	private String userName;
 	private String email;
 	private USERROLE userRole;
+	
+	boolean isEmailVerified;
+	boolean isDeleted;
 }

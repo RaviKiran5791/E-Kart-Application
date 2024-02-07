@@ -1,5 +1,6 @@
 package com.shopping.ekart.serviceimpl;
 
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -8,8 +9,8 @@ import com.shopping.ekart.entity.Customer;
 import com.shopping.ekart.entity.Seller;
 import com.shopping.ekart.entity.User;
 import com.shopping.ekart.enums.USERROLE;
-import com.shopping.ekart.exceptions.DataAlreadyExist;
 import com.shopping.ekart.exceptions.IllegalRequestException;
+import com.shopping.ekart.exceptions.UserAlreadyExistByEmailException;
 import com.shopping.ekart.repositary.CustomerRepositary;
 import com.shopping.ekart.repositary.SellerRepositary;
 import com.shopping.ekart.repositary.UserRepositary;
@@ -41,7 +42,7 @@ public class AuthServiceImpl implements AuthService{
 
 		case "SELLER"->user=new Seller();
 
-		default->throw new IllegalRequestException("Invalid User Role..!!!");
+		default->throw new IllegalRequestException("Invalid User Role..!!! "+userRequest.getUserRole());
 
 		}
 		String userName=userRequest.getEmail();
@@ -58,20 +59,24 @@ public class AuthServiceImpl implements AuthService{
 
 	private UserResponse mapToUserResponse(User user){
 		return  new UserResponse().builder()
+				.userName(user.getUserName())
 				.userId(user.getUserId())
 				.email(user.getEmail())
 				.userRole(user.getUserRole())
+				.isDeleted(user.isDeleted())
+				.isEmailVerified(user.isEmailVerified())
 				.build();
 	}
 
-	private User saveUser(User user)
+	private User saveUser(UserRequest  userRequest)
 	{
+		User user = mapToUser(userRequest);
 		switch (user.getUserRole()) {
 		case CUSTOMER->user=customerRepo.save((Customer)user);
 
 		case SELLER->user=sellerRepo.save((Seller)user);
 
-		default->throw new IllegalRequestException("Invalid User Role...!!!!");
+		default->throw new IllegalRequestException("Invalid User Role...!!! "+user.getUserRole());
 
 		}
 		return  user;
@@ -80,18 +85,20 @@ public class AuthServiceImpl implements AuthService{
 	@Override
 	public ResponseEntity<ResponseStructure<UserResponse>> registerUser(UserRequest userRequest) {
 
-		boolean existsByEmail = userRepo.existsByEmail(userRequest.getEmail());
-
-		if(!existsByEmail)
-		{
-			User user = mapToUser(userRequest);
-			user=saveUser(user);
-			UserResponse userResponse = mapToUserResponse(user);
-			return new ResponseEntity<ResponseStructure<UserResponse>>(structure.setStatusCode(HttpStatus.OK.value())
-					.setMessage("User registred Successfully,Please Varify your email by OTP")
-					.setData(userResponse),HttpStatus.OK);
-		}
-		throw new DataAlreadyExist("User Already Present!!!");
+	     User user = userRepo.findByUserName(userRequest.getEmail().split("@")[0]).map(u->{
+			
+			if(u.isEmailVerified()) throw new UserAlreadyExistByEmailException("Registration Failed, User with this email already existts");
+			
+			else {
+				// Send otp to email
+			}
+			return u;
+		}).orElseGet(()->saveUser(userRequest));
+		
+		return new ResponseEntity<ResponseStructure<UserResponse>>(structure.setStatusCode(HttpStatus.OK.value())
+				.setMessage("Please Varify your email by OTP sent to your email")
+				.setData(mapToUserResponse(user)),HttpStatus.OK);
+		
 	}
 
 }

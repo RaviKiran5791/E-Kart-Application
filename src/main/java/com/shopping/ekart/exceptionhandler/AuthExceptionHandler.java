@@ -1,4 +1,4 @@
-package com.shopping.ekart.exceptions;
+package com.shopping.ekart.exceptionhandler;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,9 +16,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-@RestControllerAdvice
-public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler {
+import com.shopping.ekart.exceptions.IllegalRequestException;
+import com.shopping.ekart.exceptions.UserAlreadyExistByEmailException;
 
+@RestControllerAdvice
+public class AuthExceptionHandler extends ResponseEntityExceptionHandler{
+	
 	private ResponseEntity<Object> structure(HttpStatus status, String message, Object rootCause) {
 		return new ResponseEntity<Object>(Map.of(
 
@@ -47,8 +50,8 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
 		return structure(HttpStatus.BAD_REQUEST, "Failed To Save the data", errors);
 	}
 
-	@ExceptionHandler(DataAlreadyExist.class)
-	public ResponseEntity<Object> dataAlreadyExist(DataAlreadyExist e) {
+	@ExceptionHandler(UserAlreadyExistByEmailException.class)
+	public ResponseEntity<Object> userAlreadyExist(UserAlreadyExistByEmailException e) {
 		return structure(HttpStatus.BAD_REQUEST, e.getMessage(), "Data Already Present");
 	}
 
@@ -56,5 +59,6 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
 	public ResponseEntity<Object> illegalRequest(IllegalRequestException e) {
 		return structure(HttpStatus.BAD_REQUEST, e.getMessage(), "Illegal Request..!!!!");
 	}
+
 
 }
