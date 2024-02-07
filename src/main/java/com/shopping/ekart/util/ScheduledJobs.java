@@ -13,11 +13,21 @@ public class ScheduledJobs {
 	
 	private AuthService authService;
 	
-	@Scheduled(fixedDelay = 1000l)
+//	@Scheduled(fixedDelay = 1000l)
+	
+	/**
+	 *  0  : Second (0-59)
+	 *	0  : Minute (0-59)
+	 *	0  : Hour (0-23)
+	 *	?  : Day of the month (no specific value)
+	 *  *  : Month (any)
+	 *	MON: Day of the week (Monday)
+	 */
+	
+	@Scheduled(cron = "0 0 0 ? * *")
 	void autoDelete()
 	{
 		authService.cleanUpNonVerifiedUsers();
-		System.out.println("deleted");
 	}
 	
 

@@ -10,7 +10,6 @@ public class EKartApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(EKartApplication.class, args);
-		System.out.println("E-Kart Application");
 	}
 
 }
