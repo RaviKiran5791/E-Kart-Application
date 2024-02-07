@@ -7,8 +7,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Setter
 @Getter
-public class DataAlreadyExist extends RuntimeException {
-	
+public class UserAlreadyExistByEmailException extends RuntimeException {
 	private String message;
-
 }
