@@ -1,6 +1,8 @@
 package com.shopping.ekart.serviceimpl;
 
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -98,6 +100,18 @@ public class AuthServiceImpl implements AuthService{
 		return new ResponseEntity<ResponseStructure<UserResponse>>(structure.setStatusCode(HttpStatus.OK.value())
 				.setMessage("Please Varify your email by OTP sent to your email")
 				.setData(mapToUserResponse(user)),HttpStatus.OK);
+		
+	}
+
+	@Override
+	public void cleanUpNonVerifiedUsers() {
+		
+		List<User> list = userRepo.findByIsEmailVerifiedFalse();
+		
+		if(!list.isEmpty())
+		{
+			list.forEach(user->userRepo.delete(user));
+		}		
 		
 	}
 
