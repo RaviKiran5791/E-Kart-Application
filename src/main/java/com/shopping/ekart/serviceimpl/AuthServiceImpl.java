@@ -1,8 +1,11 @@
 package com.shopping.ekart.serviceimpl;
 
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.shopping.ekart.entity.Customer;
@@ -32,6 +35,8 @@ public class AuthServiceImpl implements AuthService{
 	private CustomerRepositary customerRepo;
 
 	private ResponseStructure<UserResponse> structure;
+	
+	private PasswordEncoder passwordEncoder;
 
 	private <T extends User>T mapToUser(UserRequest userRequest)
 	{
@@ -49,7 +54,7 @@ public class AuthServiceImpl implements AuthService{
 
 		user.setUserName(userRequest.getEmail().split("@")[0]);
 		user.setEmail(userRequest.getEmail());
-		user.setPassword(userRequest.getPassword());
+		user.setPassword(passwordEncoder.encode(userRequest));
 		user.setUserRole(USERROLE.valueOf(userRequest.getUserRole()));
 		
 
@@ -98,6 +103,18 @@ public class AuthServiceImpl implements AuthService{
 		return new ResponseEntity<ResponseStructure<UserResponse>>(structure.setStatusCode(HttpStatus.OK.value())
 				.setMessage("Please Varify your email by OTP sent to your email")
 				.setData(mapToUserResponse(user)),HttpStatus.OK);
+		
+	}
+
+	@Override
+	public void cleanUpNonVerifiedUsers() {
+		
+		List<User> list = userRepo.findByIsEmailVerifiedFalse();
+		
+		if(!list.isEmpty())
+		{
+			list.forEach(user->userRepo.delete(user));
+		}		
 		
 	}
 
