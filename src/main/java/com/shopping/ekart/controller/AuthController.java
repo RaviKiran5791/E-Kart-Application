@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.shopping.ekart.requestdto.OtpModel;
 import com.shopping.ekart.requestdto.UserRequest;
 import com.shopping.ekart.responsedto.UserResponse;
 import com.shopping.ekart.service.AuthService;
@@ -24,6 +25,11 @@ public class AuthController {
 	@PostMapping("/register")
 	public ResponseEntity<ResponseStructure<UserResponse>> registerUser(@RequestBody @Valid UserRequest userRequest) {
 		return authService.registerUser(userRequest);
+	}
+	@PostMapping("/verifyotp")
+	public ResponseEntity<ResponseStructure<UserResponse>> verifyOtp(@RequestBody OtpModel otpModel)
+	{
+		return authService.verifyOtp(otpModel);
 	}
 
 }
