@@ -15,5 +15,7 @@ public interface UserRepositary extends JpaRepository<User, Integer>{
 	
 	  List<User> findByIsEmailVerifiedFalse();
 
+	boolean existsByEmail(String email);
+
 
 }
