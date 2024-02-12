@@ -2,6 +2,7 @@ package com.shopping.ekart.serviceimpl;
 
 
 import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -265,6 +266,8 @@ public class AuthServiceImpl implements AuthService{
 		}		
 
 	}
+	
+	
 
 
 	//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -391,6 +394,26 @@ public class AuthServiceImpl implements AuthService{
 				.expiration(LocalDateTime.now().plusSeconds(refereshExpiryInSeconds))
 				.user(user)
 				.build());
+	}
+
+
+
+	@Override
+	public void cleanUpExpiredAccessToken() {
+		System.out.println("STARTS -> cleanupExpiredAccessTokens()");
+		accessTokenRepo.deleteAll(accessTokenRepo.findAllByExpirationBefore(LocalDateTime.now()));
+		System.out.println("ENDS -> cleanupExpiredAccessTokens()");
+	}
+
+
+
+	@Override
+	public void cleanUpExpiredRefereshToken() {
+		System.out.println("STARTS -> cleanupExpiredRefreshTokens()");
+		refreshTokenRepo.deleteAll(refreshTokenRepo.findAllByExpirationBefore(LocalDateTime.now()));
+		System.out.println("ENDS -> cleanupExpiredRefreshTokens()");
+
+		
 	}
 
 

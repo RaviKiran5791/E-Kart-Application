@@ -30,5 +30,15 @@ public class ScheduledJobs {
 		authService.cleanUpNonVerifiedUsers();
 	}
 	
+	@Scheduled(fixedDelay = 3000L*60)
+	public void callCleanupExpiredAccessTokens() {
+		authService.cleanUpExpiredAccessToken();
+	}
+	
+	@Scheduled(fixedDelay = 3000L*60)
+	public void callCleanupExpiredRefreshTokens() {
+		authService.cleanUpExpiredRefereshToken();
+	}
+	
 
 }

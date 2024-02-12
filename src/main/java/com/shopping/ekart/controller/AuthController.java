@@ -1,6 +1,7 @@
 package com.shopping.ekart.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,11 +33,14 @@ public class AuthController {
 	public ResponseEntity<ResponseStructure<UserResponse>> registerUser(@RequestBody @Valid UserRequest userRequest) {
 		return authService.registerUser(userRequest);
 	}
+	
 	@PostMapping("/verifyotp")
 	public ResponseEntity<ResponseStructure<UserResponse>> verifyOtp(@RequestBody OtpModel otpModel)
 	{
 		return authService.verifyOtp(otpModel);
 	}
+	
+//	@PreAuthorize("hasAuthority('SELLER') OR hasAutority('CUSTOMER')")
 	@PostMapping("/login")
 	public ResponseEntity<ResponseStructure<AuthResponse>> login(@RequestBody AuthRequest authRequest, HttpServletResponse response){
 		return authService.login(authRequest,response);
@@ -47,6 +51,7 @@ public class AuthController {
 //	}
 	
 	// or traditional approach
+	
 	
 	@PostMapping("/logout")
 	public ResponseEntity<SimpleResponseStructure> logut(@CookieValue(name = "at",required = false)String at,@CookieValue(name="rt",required = false)String rt ,HttpServletResponse httpServletResponse){
