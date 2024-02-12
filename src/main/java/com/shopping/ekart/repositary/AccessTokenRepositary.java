@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.shopping.ekart.entity.AccessToken;
+import com.shopping.ekart.entity.User;
 
 public interface AccessTokenRepositary extends JpaRepository<AccessToken, Long>{
 
@@ -15,5 +16,7 @@ public interface AccessTokenRepositary extends JpaRepository<AccessToken, Long>{
 	List<AccessToken> findAllByExpirationBefore(LocalDateTime currentTime);
 
 	Optional<AccessToken> findByTokenAndIsBlocked(String token, boolean isBlocked);
+
+	List<AccessToken> findByUserAndIsBlockedAndTokenNot(User user, boolean isBlocked, String accessToken);
 
 }

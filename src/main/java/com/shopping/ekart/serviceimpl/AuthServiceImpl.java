@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -214,7 +215,7 @@ public class AuthServiceImpl implements AuthService{
 	}
 
 	@Override
-	public ResponseEntity<SimpleResponseStructure> logut(String at,String rt,HttpServletResponse httpServletResponse) {
+	public ResponseEntity<SimpleResponseStructure> logut(String accessToken,String refreshToken,HttpServletResponse httpServletResponse) {
 
 		
 //		String at = null;
@@ -230,29 +231,53 @@ public class AuthServiceImpl implements AuthService{
 //		}
 		// for traditional approach
 		
-		if(at==null && rt==null)
+		System.out.println("dfghjklkjh6666666666666666666666666666");
+		if(accessToken==null && refreshToken==null) {
 			throw new UserNotLoggedInException("User Not Logged In, Plese Login First");
+			}
 		
-		accessTokenRepo.findByToken(at).ifPresent(accessToken->{
-			accessToken.setBlocked(true);
-			accessTokenRepo.save(accessToken);
+		accessTokenRepo.findByToken(accessToken).ifPresent(accessToken1->{
+			accessToken1.setBlocked(true);
+			accessTokenRepo.save(accessToken1);
 			
 		});
 		
-		refreshTokenRepo.findByToken(rt).ifPresent(refreshToken->{
-			refreshToken.setBlocked(true);
-			refreshTokenRepo.save(refreshToken);
+		refreshTokenRepo.findByToken(refreshToken).ifPresent(refreshToken1->{
+			refreshToken1.setBlocked(true);
+			refreshTokenRepo.save(refreshToken1);
 		});
 		
 		httpServletResponse.addCookie(cookieManager.invalidate(new Cookie("at", "")));
 		httpServletResponse.addCookie(cookieManager.invalidate(new Cookie("rt", "")));
 		
 		SimpleResponseStructure structure=new SimpleResponseStructure();
-		structure.setMessage("Logged out Successfully..!!!");
 		structure.setStatusCode(HttpStatus.OK.value());
+		structure.setMessage("Logged out Successfully..!!!");
+		
 	
 		
 		return new ResponseEntity<SimpleResponseStructure>(structure,HttpStatus.OK);
+	}
+	
+	@Override
+	public ResponseEntity<SimpleResponseStructure> revokeOther(String accessToken, String refreshToken,
+			HttpServletResponse httpServletResponse) {
+		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+		
+		if(userName!=null)
+		{
+			userRepo.findByUserName(userName).ifPresent(user->{
+				blockAccessTokens(accessTokenRepo.findByUserAndIsBlockedAndTokenNot(user,false,accessToken));
+				blockRefereshTokens(refreshTokenRepo.findByUserAndIsBlockedAndTokenNot(user,false,refreshToken));
+			});
+			
+			SimpleResponseStructure structure=new SimpleResponseStructure();
+			structure.setStatusCode(HttpStatus.OK.value());
+			structure.setMessage("Logged out from all other Devices..!!!");
+		
+			return new ResponseEntity<SimpleResponseStructure>(structure,HttpStatus.OK);
+		}
+		throw new IllegalRequestException("User Not Authenticated");
 	}
 
 	@Override
@@ -266,12 +291,43 @@ public class AuthServiceImpl implements AuthService{
 		}		
 
 	}
+	@Override
+	public void cleanUpExpiredAccessToken() {
+		System.out.println("STARTS -> cleanupExpiredAccessTokens()");
+		accessTokenRepo.deleteAll(accessTokenRepo.findAllByExpirationBefore(LocalDateTime.now()));
+		System.out.println("ENDS -> cleanupExpiredAccessTokens()");
+	}
+
+
+
+	@Override
+	public void cleanUpExpiredRefereshToken() {
+		System.out.println("STARTS -> cleanupExpiredRefreshTokens()");
+		refreshTokenRepo.deleteAll(refreshTokenRepo.findAllByExpirationBefore(LocalDateTime.now()));
+		System.out.println("ENDS -> cleanupExpiredRefreshTokens()");
+
+		
+	}
 	
 	
 
 
 	//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+	private void blockAccessTokens(List<AccessToken> accessTokens) {
+		accessTokens.forEach(at->{
+			at.setBlocked(true);
+			accessTokenRepo.save(at);
+		});
+	}
+	private void blockRefereshTokens(List<RefreshToken> refereshTokens) {
+		refereshTokens.forEach(rt->{
+			rt.setBlocked(true);
+			refreshTokenRepo.save(rt);
+		});
+	}
+	
+	
 	private <T extends User>T mapToChildUser(UserRequest userRequest)
 	{
 		User user=null;
@@ -398,23 +454,11 @@ public class AuthServiceImpl implements AuthService{
 
 
 
-	@Override
-	public void cleanUpExpiredAccessToken() {
-		System.out.println("STARTS -> cleanupExpiredAccessTokens()");
-		accessTokenRepo.deleteAll(accessTokenRepo.findAllByExpirationBefore(LocalDateTime.now()));
-		System.out.println("ENDS -> cleanupExpiredAccessTokens()");
-	}
+	
 
 
 
-	@Override
-	public void cleanUpExpiredRefereshToken() {
-		System.out.println("STARTS -> cleanupExpiredRefreshTokens()");
-		refreshTokenRepo.deleteAll(refreshTokenRepo.findAllByExpirationBefore(LocalDateTime.now()));
-		System.out.println("ENDS -> cleanupExpiredRefreshTokens()");
-
-		
-	}
+	
 
 
 
