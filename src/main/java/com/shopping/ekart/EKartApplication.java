@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-@EnableAsync(proxyTargetClass = true)
+@EnableAsync
 public class EKartApplication {
 
 	public static void main(String[] args) {

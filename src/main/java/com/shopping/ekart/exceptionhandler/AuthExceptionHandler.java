@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -18,6 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.shopping.ekart.exceptions.IllegalRequestException;
 import com.shopping.ekart.exceptions.UserAlreadyExistByEmailException;
+import com.shopping.ekart.exceptions.UserNotLoggedInException;
 
 @RestControllerAdvice
 public class AuthExceptionHandler extends ResponseEntityExceptionHandler{
@@ -58,6 +60,16 @@ public class AuthExceptionHandler extends ResponseEntityExceptionHandler{
 	@ExceptionHandler(IllegalRequestException.class)
 	public ResponseEntity<Object> illegalRequest(IllegalRequestException e) {
 		return structure(HttpStatus.BAD_REQUEST, e.getMessage(), "Illegal Request..!!!!");
+	}
+	
+	@ExceptionHandler(UsernameNotFoundException.class)
+	public ResponseEntity<Object> usernameNotFound(UsernameNotFoundException e) {
+		return structure(HttpStatus.BAD_REQUEST, e.getMessage(), "User Name and Password Not Present..!!!!");
+	}
+	
+	@ExceptionHandler(UserNotLoggedInException.class)
+	public ResponseEntity<Object> usernameNotLoggedIn(UserNotLoggedInException e) {
+		return structure(HttpStatus.BAD_REQUEST, e.getMessage(), "User Not Logged In ..!!!!");
 	}
 
 
