@@ -217,64 +217,85 @@ public class AuthServiceImpl implements AuthService{
 	@Override
 	public ResponseEntity<SimpleResponseStructure> logut(String accessToken,String refreshToken,HttpServletResponse httpServletResponse) {
 
-		
-//		String at = null;
-//		String rt= null; 		
-//		Cookie[] cookies = httpServletRequest.getCookies();
-//
-//		for(Cookie cookie:cookies)
-//		{
-//			if(cookie.getName().equals("rt")) 
-//				rt=cookie.getValue();
-//			if(cookie.getName().equals("at")) 
-//				at=cookie.getValue();
-//		}
+
+		//		String at = null;
+		//		String rt= null; 		
+		//		Cookie[] cookies = httpServletRequest.getCookies();
+		//
+		//		for(Cookie cookie:cookies)
+		//		{
+		//			if(cookie.getName().equals("rt")) 
+		//				rt=cookie.getValue();
+		//			if(cookie.getName().equals("at")) 
+		//				at=cookie.getValue();
+		//		}
 		// for traditional approach
-		
+
 		System.out.println("dfghjklkjh6666666666666666666666666666");
 		if(accessToken==null && refreshToken==null) {
 			throw new UserNotLoggedInException("User Not Logged In, Plese Login First");
-			}
-		
+		}
+
 		accessTokenRepo.findByToken(accessToken).ifPresent(accessToken1->{
 			accessToken1.setBlocked(true);
 			accessTokenRepo.save(accessToken1);
-			
+
 		});
-		
+
 		refreshTokenRepo.findByToken(refreshToken).ifPresent(refreshToken1->{
 			refreshToken1.setBlocked(true);
 			refreshTokenRepo.save(refreshToken1);
 		});
-		
+
 		httpServletResponse.addCookie(cookieManager.invalidate(new Cookie("at", "")));
 		httpServletResponse.addCookie(cookieManager.invalidate(new Cookie("rt", "")));
-		
+
 		SimpleResponseStructure structure=new SimpleResponseStructure();
 		structure.setStatusCode(HttpStatus.OK.value());
 		structure.setMessage("Logged out Successfully..!!!");
-		
-	
-		
+
+
+
 		return new ResponseEntity<SimpleResponseStructure>(structure,HttpStatus.OK);
 	}
-	
+
 	@Override
 	public ResponseEntity<SimpleResponseStructure> revokeOther(String accessToken, String refreshToken,
 			HttpServletResponse httpServletResponse) {
 		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
-		
+
 		if(userName!=null)
 		{
 			userRepo.findByUserName(userName).ifPresent(user->{
 				blockAccessTokens(accessTokenRepo.findByUserAndIsBlockedAndTokenNot(user,false,accessToken));
 				blockRefereshTokens(refreshTokenRepo.findByUserAndIsBlockedAndTokenNot(user,false,refreshToken));
 			});
-			
+
 			SimpleResponseStructure structure=new SimpleResponseStructure();
 			structure.setStatusCode(HttpStatus.OK.value());
 			structure.setMessage("Logged out from all other Devices..!!!");
-		
+
+			return new ResponseEntity<SimpleResponseStructure>(structure,HttpStatus.OK);
+		}
+		throw new IllegalRequestException("User Not Authenticated");
+	}
+	@Override
+	public ResponseEntity<SimpleResponseStructure> revokeAll(String accessToken, String refreshToken,
+			HttpServletResponse httpServletResponse) {
+
+		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		if(userName!=null)
+		{
+			userRepo.findByUserName(userName).ifPresent(user->{
+				blockAccessTokens(accessTokenRepo.findByUserAndIsBlocked(user,false));
+				blockRefereshTokens(refreshTokenRepo.findByUserAndIsBlocked(user,false));
+			});
+
+			SimpleResponseStructure structure=new SimpleResponseStructure();
+			structure.setStatusCode(HttpStatus.OK.value());
+			structure.setMessage("Logged out from all  Devices..!!!");
+
 			return new ResponseEntity<SimpleResponseStructure>(structure,HttpStatus.OK);
 		}
 		throw new IllegalRequestException("User Not Authenticated");
@@ -306,10 +327,10 @@ public class AuthServiceImpl implements AuthService{
 		refreshTokenRepo.deleteAll(refreshTokenRepo.findAllByExpirationBefore(LocalDateTime.now()));
 		System.out.println("ENDS -> cleanupExpiredRefreshTokens()");
 
-		
+
 	}
-	
-	
+
+
 
 
 	//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -326,8 +347,8 @@ public class AuthServiceImpl implements AuthService{
 			refreshTokenRepo.save(rt);
 		});
 	}
-	
-	
+
+
 	private <T extends User>T mapToChildUser(UserRequest userRequest)
 	{
 		User user=null;
@@ -451,18 +472,5 @@ public class AuthServiceImpl implements AuthService{
 				.user(user)
 				.build());
 	}
-
-
-
-	
-
-
-
-	
-
-
-
-
-
 
 }
