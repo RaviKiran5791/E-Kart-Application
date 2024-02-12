@@ -24,9 +24,12 @@ public interface AuthService {
 
 	ResponseEntity<ResponseStructure<AuthResponse>> login(AuthRequest authRequest, HttpServletResponse response);
 
-	ResponseEntity<SimpleResponseStructure> logut(String at, String rt, HttpServletResponse httpServletResponse);
+	ResponseEntity<SimpleResponseStructure> logut(String accessToken, String refreshToken, HttpServletResponse httpServletResponse);
 	
 	void cleanUpExpiredAccessToken();
 	void cleanUpExpiredRefereshToken();
+
+	ResponseEntity<SimpleResponseStructure> revokeOther(String accessToken, String refreshToken,
+			HttpServletResponse httpServletResponse);
 
 }

@@ -50,7 +50,7 @@ public class JwtFilter extends OncePerRequestFilter{
 
 			String userName=null;
 
-			if(at!=null && rt!=null) throw new UserNotLoggedInException("User Not Logged In");
+			if(at!=null && rt!=null) 
 			{
 				Optional<AccessToken> accessToken = accessTokenRepo.findByTokenAndIsBlocked(at,false);
 
@@ -69,10 +69,9 @@ public class JwtFilter extends OncePerRequestFilter{
 					log.info("Authenticated SuccessFully");
 				}
 			}
-
-			
 		}
 		filterChain.doFilter(request, response);
+		
 	}
 
 }

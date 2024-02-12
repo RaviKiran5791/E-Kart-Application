@@ -40,7 +40,6 @@ public class AuthController {
 		return authService.verifyOtp(otpModel);
 	}
 	
-//	@PreAuthorize("hasAuthority('SELLER') OR hasAutority('CUSTOMER')")
 	@PostMapping("/login")
 	public ResponseEntity<ResponseStructure<AuthResponse>> login(@RequestBody AuthRequest authRequest, HttpServletResponse response){
 		return authService.login(authRequest,response);
@@ -54,8 +53,13 @@ public class AuthController {
 	
 	
 	@PostMapping("/logout")
-	public ResponseEntity<SimpleResponseStructure> logut(@CookieValue(name = "at",required = false)String at,@CookieValue(name="rt",required = false)String rt ,HttpServletResponse httpServletResponse){
-		return authService.logut(at,rt,httpServletResponse);
+	public ResponseEntity<SimpleResponseStructure> logut(@CookieValue(name = "at",required = false)String accessToken,@CookieValue(name="rt",required = false)String refreshToken ,HttpServletResponse httpServletResponse){
+		return authService.logut(accessToken,refreshToken,httpServletResponse);
+	}
+	
+	@PostMapping("/refresh-other-devices")
+	public ResponseEntity<SimpleResponseStructure> revokeOther(@CookieValue(name = "at",required = false)String accessToken,@CookieValue(name="rt",required = false)String refreshToken ,HttpServletResponse httpServletResponse){
+		return authService.revokeOther(accessToken,refreshToken,httpServletResponse);
 	}
 
 }
