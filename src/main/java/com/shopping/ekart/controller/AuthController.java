@@ -57,9 +57,13 @@ public class AuthController {
 		return authService.logut(accessToken,refreshToken,httpServletResponse);
 	}
 	
-	@PostMapping("/refresh-other-devices")
+	@PostMapping("/revoke-other-devices")
 	public ResponseEntity<SimpleResponseStructure> revokeOther(@CookieValue(name = "at",required = false)String accessToken,@CookieValue(name="rt",required = false)String refreshToken ,HttpServletResponse httpServletResponse){
 		return authService.revokeOther(accessToken,refreshToken,httpServletResponse);
+	}
+	@PostMapping("/revoke-all-devices")
+	public ResponseEntity<SimpleResponseStructure> revokeAll(@CookieValue(name = "at",required = false)String accessToken,@CookieValue(name="rt",required = false)String refreshToken ,HttpServletResponse httpServletResponse){
+		return authService.revokeAll(accessToken,refreshToken,httpServletResponse);
 	}
 
 }

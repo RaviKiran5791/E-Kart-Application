@@ -10,7 +10,6 @@ import com.shopping.ekart.responsedto.UserResponse;
 import com.shopping.ekart.util.ResponseStructure;
 import com.shopping.ekart.util.SimpleResponseStructure;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public interface AuthService {
@@ -30,6 +29,9 @@ public interface AuthService {
 	void cleanUpExpiredRefereshToken();
 
 	ResponseEntity<SimpleResponseStructure> revokeOther(String accessToken, String refreshToken,
+			HttpServletResponse httpServletResponse);
+
+	ResponseEntity<SimpleResponseStructure> revokeAll(String accessToken, String refreshToken,
 			HttpServletResponse httpServletResponse);
 
 }
