@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.shopping.ekart.exceptions.IllegalRequestException;
 import com.shopping.ekart.exceptions.UserAlreadyExistByEmailException;
+import com.shopping.ekart.exceptions.UserAlreadyLoggedOutException;
 import com.shopping.ekart.exceptions.UserNotLoggedInException;
 
 @RestControllerAdvice
@@ -69,6 +70,10 @@ public class AuthExceptionHandler extends ResponseEntityExceptionHandler{
 	
 	@ExceptionHandler(UserNotLoggedInException.class)
 	public ResponseEntity<Object> usernameNotLoggedIn(UserNotLoggedInException e) {
+		return structure(HttpStatus.BAD_REQUEST, e.getMessage(), "User Not Logged In ..!!!!");
+	}
+	@ExceptionHandler(UserAlreadyLoggedOutException.class)
+	public ResponseEntity<Object> usernameAlreadyLoggedOut(UserAlreadyLoggedOutException e) {
 		return structure(HttpStatus.BAD_REQUEST, e.getMessage(), "User Not Logged In ..!!!!");
 	}
 

@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,7 @@ import com.shopping.ekart.entity.User;
 import com.shopping.ekart.enums.USERROLE;
 import com.shopping.ekart.exceptions.IllegalRequestException;
 import com.shopping.ekart.exceptions.UserAlreadyExistByEmailException;
+import com.shopping.ekart.exceptions.UserAlreadyLoggedOutException;
 import com.shopping.ekart.exceptions.UserNotLoggedInException;
 import com.shopping.ekart.repositary.AccessTokenRepositary;
 import com.shopping.ekart.repositary.CustomerRepositary;
@@ -231,7 +233,6 @@ public class AuthServiceImpl implements AuthService{
 		//		}
 		// for traditional approach
 
-		System.out.println("dfghjklkjh6666666666666666666666666666");
 		if(accessToken==null && refreshToken==null) {
 			throw new UserNotLoggedInException("User Not Logged In, Plese Login First");
 		}
@@ -300,6 +301,40 @@ public class AuthServiceImpl implements AuthService{
 		}
 		throw new IllegalRequestException("User Not Authenticated");
 	}
+
+	@Override
+	public ResponseEntity<SimpleResponseStructure> refreshLoginAndTokenRotation(String at, String rt,
+			HttpServletResponse httpServletResponse) {
+		String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+		if(userName!=null) 
+		{
+			if(at!=null) {
+				AccessToken accessToken = accessTokenRepo.findByToken(at).get();
+				accessToken.setBlocked(true);
+				accessTokenRepo.save(accessToken);
+			}
+			if(rt==null) throw new UserAlreadyLoggedOutException("User Already Logged Out, Plese Login Again");
+			else {
+				
+				RefreshToken refreshToken = refreshTokenRepo.findByToken(rt).get();
+				refreshToken.setBlocked(true);
+				refreshTokenRepo.save(refreshToken);
+
+				User user = userRepo.findByUserName(userName).get();
+				grantAccess(httpServletResponse,user);
+
+				SimpleResponseStructure structure=new SimpleResponseStructure();
+				structure.setStatusCode(HttpStatus.OK.value());
+				structure.setMessage("Refresh Token generated..!!!");
+
+				return new ResponseEntity<SimpleResponseStructure>(structure,HttpStatus.OK);	
+			}
+		}
+		throw new IllegalRequestException("User Not Authenticated..");
+	}
+
+
+
 
 	@Override
 	public void cleanUpNonVerifiedUsers() {
@@ -472,5 +507,6 @@ public class AuthServiceImpl implements AuthService{
 				.user(user)
 				.build());
 	}
+
 
 }
