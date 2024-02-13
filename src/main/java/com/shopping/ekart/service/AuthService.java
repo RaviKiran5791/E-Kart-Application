@@ -34,4 +34,7 @@ public interface AuthService {
 	ResponseEntity<SimpleResponseStructure> revokeAll(String accessToken, String refreshToken,
 			HttpServletResponse httpServletResponse);
 
+	ResponseEntity<SimpleResponseStructure> refreshLoginAndTokenRotation(String accessToken, String refreshToken,
+			HttpServletResponse httpServletResponse);
+
 }

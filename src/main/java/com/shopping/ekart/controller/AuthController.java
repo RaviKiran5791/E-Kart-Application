@@ -65,5 +65,10 @@ public class AuthController {
 	public ResponseEntity<SimpleResponseStructure> revokeAll(@CookieValue(name = "at",required = false)String accessToken,@CookieValue(name="rt",required = false)String refreshToken ,HttpServletResponse httpServletResponse){
 		return authService.revokeAll(accessToken,refreshToken,httpServletResponse);
 	}
+	@PostMapping("/refresh-token")
+	public ResponseEntity<SimpleResponseStructure> refreshLoginAndTokenRotation(@CookieValue(name = "at",required = false)String accessToken,@CookieValue(name="rt",required = false)String refreshToken ,HttpServletResponse httpServletResponse){
+		return authService.refreshLoginAndTokenRotation(accessToken,refreshToken,httpServletResponse);
+	}
+	
 
 }
