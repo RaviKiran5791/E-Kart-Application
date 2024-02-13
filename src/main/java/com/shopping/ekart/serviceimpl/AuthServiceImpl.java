@@ -32,6 +32,7 @@ import com.shopping.ekart.entity.User;
 import com.shopping.ekart.enums.USERROLE;
 import com.shopping.ekart.exceptions.IllegalRequestException;
 import com.shopping.ekart.exceptions.UserAlreadyExistByEmailException;
+import com.shopping.ekart.exceptions.UserAlreadyLoggedInException;
 import com.shopping.ekart.exceptions.UserAlreadyLoggedOutException;
 import com.shopping.ekart.exceptions.UserNotLoggedInException;
 import com.shopping.ekart.repositary.AccessTokenRepositary;
@@ -187,7 +188,10 @@ public class AuthServiceImpl implements AuthService{
 
 
 	@Override
-	public ResponseEntity<ResponseStructure<AuthResponse>> login(AuthRequest authRequest,HttpServletResponse response) {
+	public ResponseEntity<ResponseStructure<AuthResponse>> login(AuthRequest authRequest,HttpServletResponse response,String at,String rt) {
+		
+		if(at!=null || rt!=null) throw new UserAlreadyLoggedInException("User Already Logged In..!!!");
+		
 		String userName=authRequest.getEmail().split("@")[0];
 
 		UsernamePasswordAuthenticationToken token=new UsernamePasswordAuthenticationToken(userName, authRequest.getPassword());

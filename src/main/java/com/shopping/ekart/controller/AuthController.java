@@ -41,8 +41,9 @@ public class AuthController {
 	}
 	
 	@PostMapping("/login")
-	public ResponseEntity<ResponseStructure<AuthResponse>> login(@RequestBody AuthRequest authRequest, HttpServletResponse response){
-		return authService.login(authRequest,response);
+	public ResponseEntity<ResponseStructure<AuthResponse>> login(@RequestBody AuthRequest authRequest, HttpServletResponse response,
+			@CookieValue(name = "at",required = false)String accessToken,@CookieValue(name="rt",required = false)String refreshToken){
+		return authService.login(authRequest,response,accessToken,refreshToken);
 	}
 //	@PostMapping("/logout")
 //	public ResponseEntity<ResponseStructure<AuthResponse>> logut(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse){
